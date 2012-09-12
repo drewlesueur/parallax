@@ -1,0 +1,48 @@
+<!doctype html>
+<html>
+  <head>
+  <meta name="viewport" content="initial-scale = 1.0, user-scalable = no" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <title>Kingdomland</title>
+  <script src="zepto.js"></script>
+  <style>
+    * { margin: 0; padding: 0}
+  </style>
+  </head>
+  <body>
+    <div id="f" style="position:fixed">0</div>
+    <div id="g" style="position:fixed; left: 40px;">0</div>
+    <div id="bg" style="background-color: teal; height: 5000px; width:300px;" ontouchmove="move(event)">
+      <div id="w" style="position: absolute; font-size: 50px; font-family: helvetica; font-weight: bold;">WOA</div>
+    </div>
+
+  </body>
+  <script>
+
+     
+    var move = function () {
+      $("#f").html(document.body.scrollTop) 
+      $("#w").css("-webkit-transform", "translate(0,"+(document.body.scrollTop + 100)+"px)")
+    }
+
+    $(document).ready(function () {
+      $(document).bind("scroll", move)
+      var colors = ["red", "lime", "blue", "yellow", "cyan", "magenta", "yellow"]
+      var bg = $("#bg")
+      for (var i = 0; i < 200; i++) {
+        var color = colors[i % colors.length]
+        bg.append("<div style=\"text-align: right; background-color: " + color + "\">yo</div>") 
+      }
+
+      $(document.body).bind("touchstart", function (e) {
+        $("#g").text(e.touches[0].pageX) 
+        move()
+      })
+      $(document.body).bind("touchmove", function (e) {
+        $("#g").text(e.touches[0].pageX) 
+      })
+    })
+
+
+  </script>
+</html>
