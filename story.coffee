@@ -34,6 +34,8 @@ window.story = [
     mars_text:
       translateX: 100
       translateY: 600
+    stars:
+      translateY: 0
 ,
   time: 100
   characters:
@@ -110,6 +112,8 @@ window.story = [
     rocket:
       rotate: 0
       translateY: 110
+    stars:
+      translateY: -300
 ,
   time: 20000
   characters:
@@ -123,4 +127,5 @@ window.characters = ["rocket", "mercury", "mercury_text"
 "venus", "venus_text",
 "earth", "earth_text",
 "mars", "mars_text"
+"stars"
 ]
