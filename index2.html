@@ -13,6 +13,7 @@
     <div id="f" style="position:fixed">0</div>
     <div id="bg" style="background-color: teal; height: 5000px; width:300px;" >
       <div id="w" style="position: absolute; top: 100px; font-size: 50px; font-family: helvetica; font-weight: bold;">WOA5</div>
+      <div id="jono" style="position: absolute; top: 100px; font-size: 50px; font-family: helvetica; font-weight: bold;">yo</div>
 
     </div>
 
@@ -27,9 +28,12 @@
         return 1 
       }
     }
-   easingMaker = function(x2, y2, x3, y3) {
-      var x1, x4, y1, y4, _ref;
-      _ref = [0, 0, 1, 1], x1 = _ref[0], y1 = _ref[1], x4 = _ref[2], y4 = _ref[3];
+
+   var cubed = function (x) {return x * x * x} 
+   var squared = function (x) {return x * x} 
+   var easingMaker = function(x2, x3) {
+      var x1 = 0
+      var x4 = 1
       return function(t) {
         var newX;
         newX = cubed(1 - t) * x1 + 3 * squared(1 - t) * t * x2 + 3 * (1 - t) * squared(t) * x3 + cubed(t) + x4;
@@ -37,7 +41,7 @@
       };
     };
 
-    defaultEasing = easingMaker(0, 1, 1, 0);
+    defaultEasing = easingMaker(0, 1);
     testEasing = function() {
       var ii, _results;
       _results = [];
@@ -71,19 +75,90 @@
     list = [1,3,500, 899, 900]
     found = closestSortedSearch(list, 0, list.length - 1, 600, function (x) {return x}, compare)
     console.log(found)
+    var characters = ["jono"]
+    var charactersLength = characters.length
     var story = 
       [{
-        "face": {
-          transform: "0, 0"
-        },
-        "time": 0
+        "time": 0,
+        "characters": {
+          "jono": {
+            "transformX": 0
+          } 
+        }
       }
       , {
-        "face": {
-          transform: "100px, 0"
-        },
-        "time": 100
+        "time": 100,
+        "characters": {
+          "jono": {
+            transformX: 100
+          } 
+        }
       }]
+
+  
+    var compileStory2 = function (story) {
+      var storyLength = story.length;
+      var lasts = {}
+      for (var i = storyLength - 1; i >= 0; i-- ) {
+        // a b c 
+        var page = story[i]
+        var characters = page.characters
+        var time = page.time
+        for (var character in characters) {
+          characterData = characters[character]  
+          
+          for (var property in characterData) {
+            var characterProperty = character + property
+            if (lasts[characterProperty]) {
+              characterData["next_" + property] = lasts[characterProperty]
+            }
+            lasts[characterProperty] = [time, characterData[property]]
+
+          }
+        }
+        console.log(lasts)
+      }
+    
+    } 
+
+    var compileStory = function (story) {
+      var maxTime = story[story.length - 1].time
+      var compiled = []
+      for (var time = 0; time <= maxTime; time++) {
+        var timeObj = {time: time}
+        compiled.push(timeObj)
+      }
+
+      var lasts = {}
+      
+      for (var i = 0; i < story.length; i++ ) {
+        // a b c 
+        var page = story[i]
+        var characters = page.characters
+        var time = page.time
+        for (var character in characters) {
+          characterData = characters[character]  
+          for (var property in characterData) {
+            var propertyValue = characterData[property]
+            var characterProperty = character + property
+            var lastCharacterProperty = lasts[characterProperty]
+            if (lastCharacterProperty) {
+              var lastTime = lastCharacterProperty[0]
+              var lastPropertyValue = lastCharacterProperty[1]
+              var timeDiff = time - lastTime
+              for (iT = lastTime; iT < time; iT++) {
+                compiled[iT][characterProperty] = lastPropertyValue + (propertyValue - lastPropertyValue) * defaultEasing((iT - lastTime) / timeDiff) 
+              } 
+            }
+            lasts[characterProperty] = [time, propertyValue]
+          }
+        }
+      }
+      return compiled
+    }
+
+    var compiledStory = compileStory(story)
+    console.log(compiledStory)
 
     var touch = {}
     var scrollIndex = 0
@@ -100,14 +175,23 @@
 
     var dashboard = $("#f")
     var getPageTime = function(page) {return page.time}
+
+    var animatableProps = ["transform"]
+    var animatablePropsLength = animatableProps.length
     var render = function (_scrollIndex) {
       // dashboard.text(_scrollIndex)
-      keyFrame = closestSortedSearch(story, 0, story.length - 1, _scrollIndex, getPageTime, compare )     
-      
-      var keyFrameIndex = keyFrame[0]
-      var keyFrameData = keyFrame[1]
+      var frame = compiledStory[_scrollIndex]
+      for (var iC = 0; iC < charactersLength; iC++) {
+        var character = characters[iC]
+
+        for (var iA = 0; iA < animatablePropsLength; iA++) {
+          var property = animatableProps[iA] 
+          $("#" + character).css(property, frame[character + property])
+
+        }
+      }
+
       var property = "transform"
-      // var startKeyFrame = findclosestPropertyInPast(story, property, keyFrameIndex) 
       var i = _scrollIndex
       $("#w").css("-webkit-transform", "translate("+i+"px, 0)")
 
