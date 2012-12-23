@@ -47,12 +47,11 @@
 
    var cubed = function (x) {return x * x * x} 
    var squared = function (x) {return x * x} 
+   // also see http://gsgd.co.uk/sandbox/jquery/easing/jquery.easing.1.3.js
+   // my easing function takes start and end, and assumes duration is always beterrn 0 and 1
    var easingMaker = function(x2, x3) {
-      var x1 = 0
-      var x4 = 1
       return function(t) {
-        newX = cubed(1 - t) * x1 + 3 * squared(1 - t) * t * x2 + 3 * (1 - t) * squared(t) * x3 + cubed(t) + x4;
-        return newX - 1;
+        return t * (x3 - x2) + x2 
       };
     };
 
